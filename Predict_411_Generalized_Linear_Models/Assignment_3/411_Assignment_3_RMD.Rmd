@@ -1,0 +1,802 @@
+---
+title: "Predicting Wine Sales"
+author: "Scott Herman"
+date: "March, 5th 2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(rticles)
+
+```
+
+\vfill
+
+**Prepared for Predict-411: Generalized Linear Models**    
+Northwestern University Masters in Science, Predictive Analytics  
+Kaggle File Submission: **wine_test_score_Herman.csv**   
+
+
+\newpage
+
+#Introduction
+
+The purpose of this analysis is to predict the number of wine cases sold by a wine manufacturing company based upon each wine's chemical characteristics. The data set contains informaiton on approximately 12,000 commercially available wines. The target variable is the number of sample cases of wine that were purchased by wine distribution companies after sampling a wine.  These cases would be used to provide tasting samples to restaurants and wine stroes around the United States, and if the manaufacturer can predict the number of cases, then they will be able to adjust their wine offering to maximize sales.
+
+Our initial data set includes a total of 14 predictor variables, each describing the various properties associated with a given wine. This set of predictors includes both quantitative and qualitative descriptive metrics, which will be utilized to develop Poisson, Negative Binomial, and OLS Regression preditive models. The table below gives the definition for each of these variables.
+
+Variable            |  Description
+--------------------|-----------------------------------------------------------  
+AcidIndex           |  Proprietary method of testing total acidity of wine by using a weighted average
+Alcohol             |  Alcohol Content
+Chlorides           |  Chloride content of wine
+CitricAcid          |  Citric Acid Content
+Density             |  Density of Wine
+FixedAcidity        |  Fixed Acidity of Wine
+FreeSulfurDioxide   |  Sulfur Dioxide content of wine
+LabelAppeal         |  Marketing Score indicating the appeal of label design for consumers.
+ResidualSugar       |  Residual Sugar of wine
+STARS               |  Wine rating by a team of experts. 4 Stars = Excellent, 1 Star = Poor
+Sulphates           |  Sulfate conten of wine
+TotalSulfurDioxide  |  Total Sulfur Dioxide of Wine
+VolatileAcidity     |  Volatile Acid content of wine
+pH                  |  pH of wine
+
+Table: Data Definitions   
+
+#Data Exploration
+
+This analysis begins by understanding the variables within our data set along with their corresponding observations in an attempt to identify the structure and quality of our data set. First, we will examine the distribution of our target variable, along with the mean and variance to identify whether or not equidispersion is present. Then, we will plot the distributions of our predictor varibles, check for any missing of influential observations, and examine their correlation to our response.
+
+The histogram below, reveals the distribution of our target variable. This visual indicates that Target is actually categorical in nature, and possesses 9 different levels, or categories, ranging from 0 to 8. Additionally, this shows that Target does appear to possess normality, while also showing signs of being zero-inflated. 
+
+![Histogram of Target Variable](/Users/herma/Desktop/Northwestern/Predict_411_Generalized_Linear_Models/Assignment_3/target_dist.png)  
+
+\newpage 
+
+Next, we take a look at the mean and variance of target which is given in Table 2, below. This shows that the variance is larger than the mean for our response, which violates the necessary assumptions for the Poisson distribution, but does meet the requirements for the Negative Binomial distribution.  
+
+Mean      | Variance
+----------|----------
+3.0290739 | 3.7108945
+
+Table: Mean and Variance of Target  
+
+
+Now that we've examined our response variable, we move on to exporing our set of predictor varibles. We can see in the table given below, that our data set contains a number of variables with missing values. This indicates that we have a total of seven variables with missing records; Alcohol, Chlorides, FreeSulfurDioxide, pH, ResidualSugar, Sulphates, TotalSulfurDioxide and Stars all have missing values that will need to be accounted for in order to use these variables in the model. These observations will need to be further examined to determine how to make the proper corrections in the our data preparation step.
+
+Variable            |  N      |  N Missing
+--------------------|---------|-----------
+AcidIndex           |  12795  |  0
+Alcohol             |  12142  |  653
+Chlorides           |  12157  |  638
+CitricAcid          |  12795  |  0
+Density             |  12795  |  0
+FixedAcidity        |  12795  |  0
+FreeSulfurDioxide   |  12148  |  647
+LabelAppeal         |  12795  |  0
+pH                  |  12400  |  335  
+ResidualSugar       |  12179  |  616
+STARS               |  9436   |  3359
+Sulphates           |  11585  |  1210
+TotalSulfurDioxide  |  12113  |  682
+VolatileAcidity     |  12795  |  0  
+
+Table: Missing Variables   
+
+In addition to these missing observations, it also appears that there are a number of variables with a large percentage of outlier values at both extremes. The boxplots below showcase the outlier values in each of the variables given below. The results from these visuals lead us to believe that these values should also be addressed in our data preparation, as we may want to adjust their high and low end values. 
+
+![Boxplots Indicating Presence of Outliers](/Users/herma/Desktop/Northwestern/Predict_411_Generalized_Linear_Models/Assignment_3/outlier_presence.png)   
+\newpage  
+
+
+
+#Data Preparation 
+
+In exploring our data set it was determined that our data set contains a number of missing observations and outlier values that will need to be addressed. This step of our modeling process aims to identify how and where to properly adjust these values in a way that will maintain the consistency of the values in our original data set, while also allowing for increased accuracy in our actual model results. First, we will address our missing values.
+
+In examining the missing data we identified that the missing values for STARS showed a strong negative correlation of -0.57158 and a significant p-value of <0.0001. to our target for wine sales. This allows us to assume that M_STARS may be a strong predictor and have decided to keep this variable in our data set. The remaining set of missing variables did not appear to have the same potential for predictive in power in explaining our resoponse, so we have decided to drop these variables to be used in our final model.  
+
+Next, we move to our treatment of outlier values which we identified in the following variables: FixedAcidity, Volatiile Acidity, ResidualSugar, Chlorides, FreeSulfurDioxide, TotalSulfurDioxide, Density, pH, Sulphates, and Alcohol. Each of these variables showed a large quantity of extreme values, and we have decided to trim these variable values by 10% of their maximium and minimum values. We can see in the set of boxplots below that this technique was moderately successful in decreasing our outlier values. Density stil appears to contain some potential outliers, but for the sake of model complexity we have decided to keep these values for now, and move forward with the model building process.  
+
+\newpage
+![Transformed Variable Boxplot Distributions](/Users/herma/Desktop/Northwestern/Predict_411_Generalized_Linear_Models/Assignment_3/trimmed.png)
+
+After making these changes, our final prediction set contains a total of 15 variables. The summary statistics and response correaltions for our updated set of predictor variables is given in the table below.  
+
+\vfill  
+![Fixed Variable Summay Statistics](/Users/herma/Desktop/Northwestern/Predict_411_Generalized_Linear_Models/Assignment_3/fixed_summary.png)  
+
+
+Variable                |  Correlation  | $\text{Pr} > |r| \text{ under } H_0: \rho = 0$
+------------------------|---------------|---------------------------------------------
+m_stars                 | -0.57158     | < 0.0001
+IMP_STARS               | 0.40013      | < 0.0001
+LabelAppeal             | 0.35650      | < 0.0001
+acidindex               | -0.24605     | < 0.0001
+volatileacidity         | -0.08879     | < 0.0001
+IMP_ALCOHOL             | 0.06043      | < 0.0001
+imp_total_sd            | 0.05010      | < 0.0001
+fixedacidity            | -0.04901     | < 0.0001
+imp_free_sd             | 0.04269      | < 0.0001
+imp_chlorides           | -0.03724     | < 0.0001
+imp_sulphates           | -0.03691     | < 0.0001
+density                 | -0.03552     | < 0.0001
+imp_res                 | 0.01607      | 0.0691
+imp_ph                  | -0.00928     | 0.2939  
+citricacid              | 0.00868      | 0.3260
+
+Table: Predictor Variable Correlations to Cases of Wine Sold
+
+In addition to analyzing the summary and correlation results a number of additional plots were produced to determine the visual relationship to one of the nine different levels for our categorical/ordinal response.  
+
+
+#Model Development 
+
+After completing our data preparation, we can move on to selecting the variables to be utilized in our final models. In this stage of the process, we will utilize five separate types of modeling procedures and analyze the results from each to determine the most accurate model to be selected for our scoring file. Our rationale behind utilizing each of these modeling procedures are highlighted below, along with our assessment of how well our data aligns with the assumption requirements:  
+
+ - **Poisson Distribution**:
+     + Appropriate when a large proportion of response values are less than or equal to zero, which our Target for wine sales appears to contain.
+     + This technique assumes that there is equidispersion present. Our dataset does not appear to meet this assumption as the variance is higher than the mean in Target.
+     + Utilzes the Log Identity function to predict counts in each of the nine levels of our resposne.
+     
+ * **Negative Binomial Distribution**:    
+    +  This technique assumes that the variance is greater than the mean, which are confirmed in our data set.
+    +  This type of model is assumed to lead to more precise coefficients and standard errors present in our results. 
+    +  The model results of this model should closely resemble what we observe in the Poisson model. The differences between these results will appear in comparing the standard errors rather than the estimated counts. 
+  
+ * **Zero-Inflated Poisson Distribution**:   
+    +  A Zero-Inflated Poisson Distribution is especially useful when there are an excess of zero-values in our dependent variable. This assumption also appears to be valid within our response.
+    +  However, our target values appear to possess extradispersion rather than an equal mean and variance.
+    
+ * **Zero-Inflated Negative Binomial Distribution**:    
+    +  This is also appropriate when there are an excess of zero-values present. Again, this was confirmed in our data.
+    +  Our data also meets the assumption of extradispersion which was also already identified. 
+
+ * **OLS Regression**:    
+    +  This type of modeling technique is most approriate for predicting probabilities or continuous values that are normally distributed. 
+    + Since we know that Target has a number of zero-values, we can interpret this as having a zero probability of occurence. This suggests that it may be best to develop this type of model in a two-step, hurdle approach. 
+    
+
+The final set of predictors to be included in our final model are summarized in the table shown in the below section. The PROC GENMOD SAS Procedure was used with each modeling procedure listed above with a number of different combinations of variables. Ulimately, we felt that there were five total variables which indicated the strongest potential of predictive accuracy, while also limiting the complexity of our final model. We hope that this will give us the strongest ability to estimate the actual number of wine caes sold while also simplifying the interpretation of our model results. 
+
+Variable                |  Correlation  | $\text{Pr} > |r| \text{ under } H_0: \rho = 0$
+------------------------|---------------|---------------------------------------------
+M_STARS                 | -0.57158     | < 0.0001
+IMP_STARS               | 0.40013      | < 0.0001
+LabelAppeal             | 0.35650      | < 0.0001
+acidindex               | -0.24605     | < 0.0001
+IMP_ALCOHOL             | 0.06043      | < 0.0001  
+
+Table: Final Set of Predictors to be Utilized in Model Development  
+
+The model formula and results from each of our five models are given below. We will discuss and summarize the results from each at the end of this section, where we will identify the strongest model for selection.
+
+####Poisson Distrubtion Model
+
+$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_2X_2 + \beta_3X_3 + \beta_4X_4 + \beta_5X_5 \epsilon$$
+
+Where:
+
+| In Model | In Data
+|:---------|:-------------
+$Y$ is     | target
+$X_1$ is   | LabelAppeal
+$X_2$ is   | acid_index
+$X_3$ is   | IMP_ALCOHOL
+$X_4$ is   | IMP_STARS
+$X_5$ is   | M_STARS
+
+Table: Poisson Model Variables
+
+Parameter     |  Set  |  Estimate   |  Std Error  | Wald Chi-Square | Pr > ChiSq  |   
+--------------|-------|-------------|-------------|-----------------|-------------|  
+intercept     |       |  1.3283     | 0.0518      | 656.79          |  <.0001  
+LabelAppeal   |  -2   |  -0.6958    | 0.0424      | 269.03          |  <.0001  
+LabelAppeal   |  -1   |  -0.4597    | 0.0250      | 338.98          |  <.0001  
+LabelAppeal   |  0    |  -0.2702    | 0.0228      | 139.87          |  <.0001  
+LabelAppeal   |  1    |  -0.1377    | 0.0232      | 35.38           |  <.0001  
+LabelAppeal   |  2    |  0.0000     | 0.000       | .               |  .    
+AcidIndex     |       |  -0.0809    | 0.0045      | 328.69          |  <.0001  
+IMP_ALCOHOL   |       |  .0040      | 0.0017      | 682.89          |  <.0001  
+IMP_STARS     |  1    |  -0.2409    | 0.0216      | 149.78          |  <.0001  
+IMP_STARS     |  2    |  -0.1207    | 0.0199      | 35.77           |  <.0001  
+IMP_STARS     |  3    |   0.00000   | 0.0202      | .               |  .  
+IMP_STARS     |  4    |   0.00000   | 0.000       | .               |  .  
+M_STARS       |  0    |  1.0923     | 0.0182      | 3597.47         |  <.0001  
+M_STARS       |  1    |  0.0000     | 0.000       | .               |  .  
+Scale         |  0    |  1.0000     | 0.0000      | .               |  .  
+
+Table: Poisson Model Analysis Of Maximum Likelihood Parameter Estimates
+
+Criterion                  |  DF         |  Value       |  Value/DF
+---------------------------|-------------|--------------|----------
+Deviance                   |  1.30E+004  |  13695.1767  |  1.0713
+Scaled Deviance            |  1.30E+004  |  13695.1767  |  1.0713
+Pearson Chi-Square         |  1.30E+004  |  11320.7636  |  0.8855
+Scaled Pearson X2          |  1.30E+004  |  11320.7636  |  0.8855
+Log Likelihood             |             |  8778.5721   |
+Full Log Likelihood        |             |  -22818.5992 |
+AIC (smaller is better)    |             |  45659.1984  |
+AICC (smaller is better)   |             |  45659.2191  |
+BIC (smaller is better)    |             |  45741.223   |  
+
+Table: Poisson Model Criteria for Assessing Goodness of Fit
+
+####Negative Binomial Distrubtion Model
+
+$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_2X_2 + \beta_3X_3 + \beta_4X_4 + \beta_5X_5 \epsilon$$
+
+Where:
+
+| In Model | In Data
+|:---------|:-------------
+$Y$ is     | target
+$X_1$ is   | LabelAppeal
+$X_2$ is   | acid_index
+$X_3$ is   | IMP_ALCOHOL
+$X_4$ is   | IMP_STARS
+$X_5$ is   | M_STARS  
+
+Table: Negative Binomial Model Variables
+
+Parameter     |  Set  |  Estimate   |  Std Error  | Wald Chi-Square | Pr > ChiSq  |   
+--------------|-------|-------------|-------------|-----------------|-------------|     
+intercept     |       |  1.3283     | 0.0518      | 656.79          |  <.0001  
+LabelAppeal   |  -2   |  -0.6965    | 0.0424      | 269.03          |  <.0001  
+LabelAppeal   |  -1   |  -0.4593    | 0.0250      | 338.98          |  <.0001  
+LabelAppeal   |  0    |  -0.2698    | 0.0228      | 139.87          |  <.0001  
+LabelAppeal   |  1    |  -0.1369    | 0.0232      | 35.38           |  <.0001  
+LabelAppeal   |  2    |  0.0000     | 0.000       | .               |  .    
+AcidIndex     |       |  -0.0809    | 0.0045      | 328.69          |  <.0001  
+IMP_ALCOHOL   |       |  .0040      | 0.0017      | 682.89          |  <.0001  
+IMP_STARS     |  1    |  -0.5621    | 0.0216      | 149.78          |  <.0001  
+IMP_STARS     |  2    |  -0.2409    | 0.0199      | 35.77           |  <.0001  
+IMP_STARS     |  3    |  -0.1199    | 0.0202      | .               |  .  
+IMP_STARS     |  4    |  0.0000     | 0.0000      | .               |  .  
+M_STARS       |  0    |  1.0923     | 0.0182      | 3597.47         |  <.0001  
+M_STARS       |  1    |  0.0000     | 0.0000      | .               |  .  
+Dispersion    |  0    |  0.0001     | 0.0000      | .               |  .  
+
+Table: Negative Binomial Distribution Model Analysis Of Maximum Likelihood Parameter Estimates  
+
+Criterion                  |  DF         |  Value       |  Value/DF
+---------------------------|-------------|--------------|----------
+Deviance                   |  1.30E+004  |  13695.1767  |  1.0713
+Scaled Deviance            |  1.30E+004  |  13695.1767  |  1.0713
+Pearson Chi-Square         |  1.30E+004  |  11320.7545  |  0.8855
+Scaled Pearson X2          |  1.30E+004  |  11320.7545  |  0.8855
+Log Likelihood             |             |  8778.5721   |
+Full Log Likelihood        |             |  -22818.5992 |
+AIC (smaller is better)    |             |  45661.1984  |
+AICC (smaller is better)   |             |  45661.2228  |
+BIC (smaller is better)    |             |  45750.6801  |
+
+Table: Negative Binomial  Model Criteria for Assessing Goodness of Fit
+
+####Zero-Inflated Poisson Model 
+$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_2X_2 + \beta_3X_3 + \beta_4X_4 + \beta_5X_5 \epsilon$$
+
+Where:
+
+| In Model | In Data
+|:---------|:-------------
+$Y$ is     | target
+$X_1$ is   | LabelAppeal
+$X_2$ is   | acid_index
+$X_3$ is   | IMP_ALCOHOL
+$X_4$ is   | IMP_STARS
+$X_5$ is   | M_STARS
+
+Table: Zero-Inflated Poisson Variables  
+
+Parameter     |  Set  |  Estimate   |  Std Error  | Wald Chi-Square | Pr > ChiSq  |   
+--------------|-------|-------------|-------------|-----------------|-------------|   
+intercept     |       |  1.7861     | 0.0541      | 1088.44         |  <.0001  
+LabelAppeal   |  -2   |  -0.9682    | 0.0439      | 487.07          |  <.0001  
+LabelAppeal   |  -1   |  -0.6001    | 0.0260      | 534.35          |  <.0001  
+LabelAppeal   |  0    |  -0.3393    | 0.0236      | 207.25          |  <.0001  
+LabelAppeal   |  1    |  -0.1561    | 0.0238      | 43.18           |  <.0001  
+LabelAppeal   |  2    |  0.0000     | 0.000       | .               |  .    
+AcidIndex     |       |  -0.0201    | 0.0049      | 18.07           |  <.0001  
+IMP_ALCOHOL   |       |  .0076      | 0.0018      | 17.78           |  <.0001  
+IMP_STARS     |  1    |  -0.4107    | 0.0231      | 316.21          |  <.0001  
+IMP_STARS     |  2    |  -0.1970    | 0.0200      | 97.38           |  <.0001  
+IMP_STARS     |  3    |  -0.1034    | 0.0202      | 26.23           |  .  
+IMP_STARS     |  4    |  0.0000     | 0.0000      | .               |  .  
+M_STARS       |  0    |  0.1846     | 0.0196      | 88.51           |  <.0001  
+M_STARS       |  1    |  0.0000     | 0.0000      | .               |  .  
+Scale         |  0    |  1.0000     | 0.0000      | .               |  .  
+
+Table: Zero-Inflated Poisson Model Analysis Of Maximum Likelihood Parameter Estimates  
+
+
+Criterion                  |  DF         |  Value       |  Value/DF
+---------------------------|-------------|--------------|----------
+Deviance                   |  1.30E+004  |  41909.8340  |  
+Scaled Deviance            |  1.30E+004  |  41909.8340  |  
+Pearson Chi-Square         |  1.30E+004  |  6093.1291   |  0.4767
+Scaled Pearson X2          |  1.30E+004  |  6093.1291   |  0.4767
+Log Likelihood             |             |  10642.2543  |
+Full Log Likelihood        |             |  -20954.9170 |
+AIC (smaller is better)    |             |  41937.8340  |
+AICC (smaller is better)   |             |  41937.8669  |
+BIC (smaller is better)    |             |  42042.2294  |
+
+Table: Zero-Inflated Model Criteria for Asessing Goodness of Fit
+
+####Zero-Inflated Negative Binomial Distrubiton Model
+
+$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_2X_2 + \beta_3X_3 + \beta_4X_4 + \beta_5X_5 \epsilon$$
+
+Where:
+
+| In Model | In Data
+|:---------|:-------------
+$Y$ is     | target
+$X_1$ is   | LabelAppeal
+$X_2$ is   | acid_index
+$X_3$ is   | IMP_ALCOHOL
+$X_4$ is   | IMP_STARS
+$X_5$ is   | M_STARS
+
+Table: Zero-Inflated Negative Binomial Model Variables
+
+Parameter     |  Set  |  Estimate   |  Std Error  | Wald Chi-Square | Pr > ChiSq  |   
+--------------|-------|-------------|-------------|-----------------|-------------|  
+intercept     |       |  1.7807     | 0.0541      | 1078.73         |  <.0001  
+LabelAppeal   |  -2   |  -0.9734    | 0.0439      | 490.14          |  <.0001  
+LabelAppeal   |  -1   |  -0.6035    | 0.0260      | 537.60          |  <.0001  
+LabelAppeal   |  0    |  -0.3411    | 0.0236      | 208.20          |  <.0001  
+LabelAppeal   |  1    |  -0.1568    | 0.0238      | 43.26           |  <.0001  
+LabelAppeal   |  2    |  0.0000     | 0.000       | .               |  .    
+AcidIndex     |       |  -0.0201    | 0.0049      | 16.53           |  <.0001  
+IMP_ALCOHOL   |       |  .0077      | 0.0018      | 18.09           |  <.0001  
+IMP_STARS     |  1    |  -0.4004    | 0.0231      | 301.85          |  <.0001  
+IMP_STARS     |  2    |  -0.1957    | 0.0200      | 95.18           |  <.0001  
+IMP_STARS     |  3    |  -0.1031    | 0.0202      | 25.81           |  .  
+IMP_STARS     |  4    |  0.0000     | 0.0000      | .               |  .  
+M_STARS       |  0    |  0.1831     | 0.0196      | 86.75           |  <.0001  
+M_STARS       |  1    |  0.0000     | 0.000       | .               |  .  
+Scale         |  0    |  1.0000     | 0.0000      | .               |  .  
+
+Table: Zero-Inflated Negative Binomial Distribution Model Analysis Of Maximum Likelihood Parameter Estimates  
+
+Criterion                  |  DF         |  Value       |  Value/DF
+---------------------------|-------------|--------------|----------
+Deviance                   |  1.30E+004  |  41966.8578  |  
+Scaled Deviance            |  1.30E+004  |  41966.8578  |  
+Pearson Chi-Square         |  1.30E+004  |  5987.0665   |  0.4684
+Scaled Pearson X2          |  1.30E+004  |  5987.0665   |  0.4684
+Log Likelihood             |             |  -20983.4289 |
+Full Log Likelihood        |             |  -20983.4289 |
+AIC (smaller is better)    |             |  41996.8578  |
+AICC (smaller is better)   |             |  41996.8954  |
+BIC (smaller is better)    |             |  42108.7099  |  
+
+Table: Zero-Inflated Negative Binomial Model Criteria for Assessing Goodness of Fit
+
+####OLS Regression Model
+
+$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_2X_2 + \beta_3X_3 + \beta_4X_4 + \beta_5X_5 \epsilon$$
+
+Where:
+
+| In Model | In Data
+|:---------|:-------------
+$Y$ is     | target
+$X_1$ is   | LabelAppeal
+$X_2$ is   | acid_index
+$X_3$ is   | IMP_ALCOHOL
+$X_4$ is   | IMP_STARS
+$X_5$ is   | M_STARS
+
+Table: OLS Regression Variables 
+
+Parameter     |  Set  |  Estimate   |  Standard Error  | t Value   | P value     |   
+--------------|-------|-------------|------------------|-----------|-------------|  
+intercept     |       |  3.49983    | 0.08917          | 39.25     |  <.0001  
+LabelAppeal   |  1    |  0.46555    | 0.01371          | 33.95     |  <.0001  
+AcidIndex     |  1    |  -0.20546   | 0.00895          | -22.95    |  <.0001  
+IMP_ALCOHOL   |  1    |  .01300     | 0.00399          | 3.26      |  <.0001  
+IMP_STARS     |  1    |  -0.78364   | 0.01572          | 49.84     |  0.0011  
+M_STARS       |  1    |  -2.26333   | 0.02698          | -83.89    |  <.0001  
+
+Table: OLS Regression Model Parameter Estimates 
+
+
+Source          |  DF      | Sum of Squares  | Mean Square  | F Value         | Pr > F      |   
+----------------|----------|-----------------|--------------|-----------------|-------------|  
+Model           |  5       |  25372          | 5074.42851   | 2935.84         |  <.0001  
+Error           |  12789   |  22105          | 1.72844      |                 |    
+Corrected Total | 12794    |  47477          |              |                 |    
+                |          |                 |              |                 |  
+                |          | Root MSE        |  1.31470     |  R-Square       | 0.5344
+                |          | Dependent Mean  |  3.20907     |  Adj R-Square   | 0.5342
+                |          | Coeff Var       |  43.40279    |                 |  
+
+Table: OLS Regression Model Analysis of Variance    
+
+##Model Results   
+
+The results above allow us to analyze the summary of fit results and by providing a number of various metrics for comparison. This also allows us to analyze the coefficients and their weighted impacted to the response in each different model. In this step, will identify any notable difference between models and confirm that each makes sense in the context of predicting the cases of wine sold.    
+
+In comparing our first two models, we found that the results from the Poisson and Negative Binomial model were very similar. Each of the coefficient estimates were nearly identical in value and direction. Additional we saw that the standard error figures were also close to equal in value. We will need to review the AIC, AICC and BIC to further examine the strength of these models.  
+
+The Zero-Inflated Poisson distribution yielded similar results to the Zero-Inflated Negative Binomial model. The coefficient estimates for each variable were similar, but not as close as the comparison in the poisson and neg bin model. It appears the Zero-Inflated Poisson model showed a stronger Wald Chi-Sqare for nearly each different variable input. Although these numbers are also comparable to the Zero-Inflated Negative Binomial model.   
+
+We also identified that each variable showed a statistically significant correlation to our target variable in every model procedure discussed above. This might allow us to conclude that our target variables are good predictors, but that will be confirmed when we score the model against the actual results. Additionally, in reviewing our OLS Regression model results we can see this model shows statistical significance, and a fairly strong a R-Score of 0.5344. This can be interpreted as this model explains roughly 53.44% of the variability of our resonse value results. Although this result is fairly strong, we will likely decide not to move forward in selecting this type of model due to the fact that the distributions found within our data failed to meet a number of assumptions necessary to ensure accuracy within the results.  
+
+Next, The table below gives the AIC, AICC, and BIC scores which help us understand the initial strength of the first four models we developed. When we review these values, it is important to note that a lower score indicates a better likelyhood of accurate model results. Although there is no one single figure that will tell us what model will work best in the real world, these scores provide a generally benchmark do equally compare multiple models against each other. These model scores will be compared against our first four models that were built. The OLS Regression model will yield a different set of summary fit statistics, so we will compare the R-Square value and determine whether or not this provides higher accuracy than the other four models.   
+
+Modeling Procedue              |  AIC        |  AICC        |  BIC        |   
+--------------------------------|-------------|--------------|-------------|  
+Poisson                         | 45659.1984  | 45659.2191   | 45741.223  
+Negative Binomial               | 45661.1984  | 45661.2228   | 45750.6801  
+Zero-Inflated Poisson           | 41937.8340  | 41937.8669   | 42042.2294  
+Zero-Inflated Negative Binomial | 41996.8578  | 41996.8954   | 42108.7099  
+
+Table: Comparison Summary of Model Scoring Criteria Results
+
+#Model Selection  
+
+In comparing the results from our first four models, we saw similar coefficient estimates, standard error rates, and Wald Chi-Square scores between the Poisson and Negative Binomial procedures, and separately in comparison of the Zero-Inflated Poisson and Zero-Negative Binomial models. Although the first two models meet enough assumptions of these procedures to promote valid results, their Maximum Likelyhood Scores were a bit higher than the Zero-Inflated models. In addition to containing stronger scores here, we also feel that the distributions of our initial data set better match the requirements for a Zero-Inflated model. This is especially true given that we identified that our reponse contains zero-values, representing no wine sales, in over 20% of the observations. In the final comparison of these two models, we can see that the Zero-Inflated Poisson model possesses lower AIC, AICC and BIC scores than the Zero-Inflated Negative Binomial Distribution model. The differnces in these score values are minimal which probably means they will yield to similar results. However, we believe that the distributions found within our data set better meet the assumptions of the Zero-Inflated Negative Binomial model. In going back to our exploratory data analysis, we identified that the variance of our target exceeded the mean which ultimately drove us to select this model.
+
+#Conclusion  
+
+The results from this research exploration enabled us to measure and compare the results from five different modeling procedures. The summary-of-fit and maximum likleyhood scores were comparable across multiple models, despite the fact that they didn't necesarrily meet every single assumption of that technique. These procedures also revealed that there are two qualitative varaibles showing significant and strong correlation to the quantity of wine sold in each of the five models. As a wine manufacturer, these results can be utilized to better market their product to increase sales. For example, in each of these models, we saw that LabelAppeal showed the strongest correlation to the success of wine sales. If we identify that our wine products are receving negative ratings from consumers, we may want to develop and test new packaging colors and types. The results from this analysis may allow us to confidently recommend an increased investment in packaging innovation. Further research on this subject would be needed in validating these decisions. 
+
+#BINGO BONUS
+
+ * **This document was created in R-Markdown using the knitr and pandoc packages**:  
+  - This type of formatting is useful in data science becuase it allows the researcher to weave their r-code right into their actual written analysis. Although there is no code specifically shown within the document output for this particular report, this type of programming provides a method for creating reproduceable reports while also providing a professional and well formatted PDF output. 
+  
+   * **R Coding and Decision Trees**: 
+   - For example, I can run the following piece of code to showcase the code utilized for a particular report output. This would be great for collaborating across different teams and provides a more seamless experience when multiple people are working on the same type of project and need to share code. This would decrease time wasted in copying and pasting, or debugging newly produced code everytime. 
+   
+```{r, echo=TRUE}
+library(stringr)
+library(ggplot2)
+library(lattice)
+library(lubridate)
+library(plotly)
+library(moments)
+library(tidyverse)
+library(car)
+library(rpart)
+library(rpart.plot)
+library(party)
+
+WINE<- read.csv('wine.csv',stringsAsFactors = FALSE)
+summary(WINE)
+str(WINE)
+
+
+#Impute Variables with NA Values
+WINE$ResidualSugar<- recode(WINE$ResidualSugar,"NA=5.4187331")
+WINE$Chlorides<- recode(WINE$Chlorides,"NA=0.0548225")
+WINE$FreeSulfurDioxide<- recode(WINE$FreeSulfurDioxide,"NA=30.8455713")
+WINE$TotalSulfurDioxide<- recode(WINE$TotalSulfurDioxide,"NA=120.7142326")
+WINE$pH<-recode(WINE$pH,"NA=3.2076282")
+WINE$Sulphates<- recode(WINE$Sulphates,"NA=0.5271118")
+WINE$Alcohol<- recode(WINE$Alcohol,"NA=10.4892363")
+WINE$STARS<- recode(WINE$STARS,"NA=2")
+
+summary(WINE)
+
+fit<- ctree(WINE$TARGET ~ WINE$LabelAppeal)
+plot(fit, main="")
+
+fit<- ctree(WINE$TARGET ~ WINE$STARS)
+plot(fit)
+
+fit<- ctree(WINE$STARS ~ WINE$LabelAppeal)
+plot(fit)
+
+
+fit<- ctree(WINE$TARGET~ WINE$AcidIndex)
+plot(fit)
+
+
+fit<- ctree(WINE$STARS ~ WINE$AcidIndex + WINE$Alcohol)
+plot(fit)
+
+```
+
+#APPENDIX: SAS CODE  
+
+$\ libname mydata '/sscc/home/s/sth932/WINE';  
+
+proc contents data=mydata.wine;  
+run;  
+
+proc means data=mydata.wine p10 mean median p90;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox FixedAcidity;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox FixedAcidity/group=target;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox Density;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox Density/group=target;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox ALCOHOL;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox ALCOHOL/group=target;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox TOTALSULFURDIOXIDE;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox TOTALSULFURDIOXIDE/group=target;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox labelappeal;  
+run;  
+
+proc sgplot data=mydata.wine;  
+	vbox labelappeal/group=target;  
+run;  
+ 
+
+data one (DROP=INDEX);  
+set mydata.wine;  
+
+if fixedacidity > 15.6 then do;  
+	fixedacidity = 15.6;  
+end;  
+
+if fixedacidity < -1.2 then do;  
+	fixedacidity = -1.2;  
+end;  
+
+if VolatileAcidity < -0.72  then do;  
+	 VolatileAcidity= -0.72;  
+end;  
+
+if VolatileAcidity > 1.35 then do;  
+	 VolatileAcidity= 1.35;  
+end;  
+
+if  ResidualSugar>.481 then do;  
+	ResidualSugar= .481;  
+end;  
+
+if ResidualSugar <-39.7 then do;  
+	ResidualSugar=-39.7 ;  
+end;  
+
+if  Chlorides< -.372 then do;  
+	Chlorides= -.372;  
+end;  
+
+if Chlorides > .481 then do;  
+	 Chlorides=.481;  
+end;  
+
+
+if  FreeSulfurDioxide< -171.0 then do;  
+	 FreeSulfurDioxide=-171.0;  
+end;  
+
+if FreeSulfurDioxide > 230 then do;  
+	 FreeSulfurDioxide= 230;  
+end;  
+
+
+if totalsulfurdioxide <-185 then do;  
+	 totalsulfurdioxide=-185;  
+end;  
+
+if totalsulfurdioxide > 422 then do;  
+	 totalsulfurdioxide=422;  
+end;  
+
+if   density< .9587 then do;  
+	  density=.9587;  
+end;  
+  
+if  density > 1.0295then do;  
+	  density=1.0295;  
+end;  
+
+if  pH<2.31 then do;  
+	 pH=2.31;  
+end;  
+
+if  pH> 4.1 then do;  
+	 pH=4.1;  
+end;  
+
+if   sulphates<-0.7 then do;  
+	  sulphates=-0.7;  
+end;  
+
+if  sulphates > 1.77then do;  
+	  sulphates=1.77;  
+end;  
+
+if alcohol < 5.7 then do;  
+	 alcohol=5.7;  
+end;  
+
+if alcohol >15.2 then do;   
+	 alcohol=15.2;  
+end;  
+
+proc contents data=one;  
+run;  
+
+proc means data=one n nmiss mean median max std stderr var qrange;  
+run;  
+
+DATA two;  
+	set one;  
+
+IMP_RES=RESIDUALSUGAR;  
+M_RES=0;  
+if RESIDUALSUGAR="." then do;  
+		IMP_RES=5.4187331;  
+		M_RES=1;  
+end;  
+
+IMP_CHLORIDES=CHLORIDES;  
+M_CHLORIDES=0;  
+if CHLORIDES="." then do;  
+		IMP_CHLORIDES=0.0548225;  
+		M_CHLORIDES=1;  
+end;  
+
+IMP_FREE_SD=FREESULFURDIOXIDE;  
+M_FREE_SD=0;  
+if FREESULFURDIOXIDE="." then do;  
+		IMP_FREE_SD=30.8455713;  
+		M_FREE_SD=1;  
+end;  
+
+
+IMP_TOTAL_SD=TOTALSULFURDIOXIDE;  
+M_TOTAL_SD=0;  
+if TOTALSULFURDIOXIDE="." then do;  
+		IMP_TOTAL_SD=120.7142326;  
+		M_TOTAL_SD=1;  
+end;  
+
+IMP_pH=pH;  
+M_pH=0;  
+if pH="." then do;  
+		IMP_pH=3.2076282;  
+		M_pH=1;  
+end;  
+ 
+IMP_SULPHATES=SULPHATES;  
+M_SULPHATES=0;  
+if SULPHATES="." then do;  
+		IMP_SULPHATES=0.5271118;  
+		M_SULPHATES=1;  
+end;  
+
+IMP_Alcohol=Alcohol;  
+M_Alcohol=0;  
+if Alcohol="." then do;  
+		IMP_Alcohol=10.4892363;  
+		M_Alcohol=1;  
+end;  
+
+IMP_STARS = STARS;  
+M_STARS = 0;  
+if STARS='.' then do;  
+		IMP_STARS=2;  
+		M_STARS=1;  
+end;  
+
+
+proc means data=two n nmiss mean median var std ndec=4;  
+run;  
+
+proc sgplot data=two;  
+	vbox FixedAcidity;  
+run;  
+
+proc sgplot data=two;  
+	vbox FixedAcidity/group=target;  
+run;  
+  
+proc sgplot data=two;
+	vbox Density;
+run;
+
+proc sgplot data=two;
+	vbox Density/group=target;
+run;
+
+proc sgplot data=two;
+	vbox ALCOHOL;
+run;
+
+proc sgplot data=two;
+	vbox ALCOHOL/group=target;
+run;
+
+proc sgplot data=two;
+	vbox TOTALSULFURDIOXIDE;
+run;
+
+proc sgplot data=two;
+	vbox TOTALSULFURDIOXIDE/group=target;
+run;
+
+proc sgplot data=two;
+	vbox labelappeal;
+run;
+
+proc sgplot data=two;
+	vbox labelappeal/group=target;
+run;
+ 
+
+proc corr data=two rank;
+var FixedAcidity Density LabelAppeal AcidIndex IMP_TOTAL_SD IMP_Alcohol IMP_STARS M_STARS;
+	with TARGET;
+run;
+
+
+proc genmod data=two;
+	class labelappeal imp_stars M_STARS;
+	model target = LabelAppeal AcidIndex IMP_Alcohol IMP_STARS M_STARS/ link=log dist=poi;
+	output out=two p=pr1;
+
+proc genmod data=two;
+	class labelappeal imp_stars M_STARS;
+	model target = LabelAppeal AcidIndex IMP_Alcohol IMP_STARS M_STARS/ link=log dist=nb;
+	output out=two p=nbr1;
+
+proc genmod data=two;
+	class labelappeal imp_stars M_STARS;
+	model target = LabelAppeal AcidIndex IMP_Alcohol IMP_STARS M_STARS/ link=log dist=ZIP;
+	zeromodel acidindex m_stars/link=logit;
+	output out=two p=zip1;
+
+proc genmod data=two;
+	class labelappeal imp_stars M_STARS;
+	model target = LabelAppeal AcidIndex IMP_Alcohol IMP_STARS M_STARS/ link=log dist=ZIP;
+	zeromodel acidindex m_stars/link=logit;
+	output out=two p=zip1 pzero=zzip1;
+
+proc genmod data=two;
+	class labelappeal imp_stars M_STARS;
+	model target = LabelAppeal AcidIndex IMP_Alcohol IMP_STARS M_STARS/ link=log dist=ZINB;
+	zeromodel acidindex m_stars/link=logit;
+	output out=two p=zinb1 pzero=zzinb1;
+
+proc reg data=two;
+	model target =LabelAppeal AcidIndex IMP_Alcohol IMP_STARS M_STARS;
+	output out=two p=yhat;
+run;
+
+proc genmod data=two;
+	class labelappeal imp_stars m_stars;
+	model target =  LabelAppeal AcidIndex IMP_Alcohol IMP_STARS M_STARS/ link=identity dist=normal;
+	output out=two p=ols1;
+	
+proc print data=two (obs=20);
+	var target pr1 nbr1 zip1 zinb1 yhat ols1;
+run;

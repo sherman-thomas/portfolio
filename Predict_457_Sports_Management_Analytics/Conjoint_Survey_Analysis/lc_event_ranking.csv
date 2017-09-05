@@ -1,0 +1,17 @@
+question,price,seating,weekday,boxvip,gametime,opponent,ranking
+13,$119 ,Upper Level,Saturday   ,Box/VIP YES,Evening    ,Cleveland ,1
+6,$58 ,Upper Level,Sunday     ,Box/VIP NO ,Evening    ,Milwaukee  ,2
+3,$58 ,Courtside ,Saturday   ,Box/VIP YES,Afternoon  ,Chicago    ,3
+14,$119 ,Courtside ,Sunday     ,Box/VIP NO ,Afternoon  ,Indiana    ,4
+4,$195 ,Lower Level,Saturday   ,Box/VIP NO ,Afternoon  ,Milwaukee  ,5
+5,$80 ,Courtside ,Friday     ,Box/VIP YES,Evening    ,Milwaukee  ,6
+11,$80 ,Mid Level ,Saturday   ,Box/VIP NO ,Evening    ,Indiana    ,7
+16,$195 ,Upper Level,Friday     ,Box/VIP YES,Afternoon  ,Indiana    ,8
+9,$58 ,Lower Level,Mon-Thurs ,Box/VIP YES,Evening    ,Indiana    ,9
+12,$119 ,Mid Level ,Mon-Thurs ,Box/VIP YES,Afternoon  ,Milwaukee  ,10
+10,$80 ,Upper Level,Mon-Thurs ,Box/VIP NO ,Afternoon  ,Chicago    ,11
+15,$80 ,Lower Level,Sunday     ,Box/VIP YES,Afternoon  ,Cleveland ,12
+8,$195 ,Mid Level ,Sunday     ,Box/VIP YES,Evening    ,Chicago    ,13
+2,$195 ,Courtside ,Mon-Thurs ,Box/VIP NO ,Evening    ,Cleveland ,14
+7,$58 ,Mid Level ,Friday     ,Box/VIP NO ,Afternoon  ,Cleveland ,15
+1,$119 ,Lower Level,Friday     ,Box/VIP NO ,Evening    ,Chicago    ,16

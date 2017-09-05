@@ -1,0 +1,147 @@
+
+Block 1 
+ 
+Question 1 
+         alt.1        
+price    "PRICE $119" 
+seating  "Lower Level"
+weekday  "Friday"     
+boxvip   "Box/VIP NO" 
+gametime "Evening"    
+opponent "Chicago"    
+
+Question 2 
+         alt.1       
+price    "PRICE $195"
+seating  "Courtside" 
+weekday  "Mon-Thurs" 
+boxvip   "Box/VIP NO"
+gametime "Evening"   
+opponent "Cleveland" 
+
+Question 3 
+         alt.1        
+price    "PRICE $58"  
+seating  "Courtside"  
+weekday  "Saturday"   
+boxvip   "Box/VIP YES"
+gametime "Afternoon"  
+opponent "Chicago"    
+
+Question 4 
+         alt.1        
+price    "PRICE $195" 
+seating  "Lower Level"
+weekday  "Saturday"   
+boxvip   "Box/VIP NO" 
+gametime "Afternoon"  
+opponent "Milwaukee"  
+
+Question 5 
+         alt.1        
+price    "PRICE $80"  
+seating  "Courtside"  
+weekday  "Friday"     
+boxvip   "Box/VIP YES"
+gametime "Evening"    
+opponent "Milwaukee"  
+
+Question 6 
+         alt.1        
+price    "PRICE $58"  
+seating  "Upper Level"
+weekday  "Sunday"     
+boxvip   "Box/VIP NO" 
+gametime "Evening"    
+opponent "Milwaukee"  
+
+Question 7 
+         alt.1       
+price    "PRICE $58" 
+seating  "Mid Level" 
+weekday  "Friday"    
+boxvip   "Box/VIP NO"
+gametime "Afternoon" 
+opponent "Cleveland" 
+
+Question 8 
+         alt.1        
+price    "PRICE $195" 
+seating  "Mid Level"  
+weekday  "Sunday"     
+boxvip   "Box/VIP YES"
+gametime "Evening"    
+opponent "Chicago"    
+
+Question 9 
+         alt.1        
+price    "PRICE $58"  
+seating  "Lower Level"
+weekday  "Mon-Thurs"  
+boxvip   "Box/VIP YES"
+gametime "Evening"    
+opponent "Indiana"    
+
+Question 10 
+         alt.1        
+price    "PRICE $80"  
+seating  "Upper Level"
+weekday  "Mon-Thurs"  
+boxvip   "Box/VIP NO" 
+gametime "Afternoon"  
+opponent "Chicago"    
+
+Question 11 
+         alt.1       
+price    "PRICE $80" 
+seating  "Mid Level" 
+weekday  "Saturday"  
+boxvip   "Box/VIP NO"
+gametime "Evening"   
+opponent "Indiana"   
+
+Question 12 
+         alt.1        
+price    "PRICE $119" 
+seating  "Mid Level"  
+weekday  "Mon-Thurs"  
+boxvip   "Box/VIP YES"
+gametime "Afternoon"  
+opponent "Milwaukee"  
+
+Question 13 
+         alt.1        
+price    "PRICE $119" 
+seating  "Upper Level"
+weekday  "Saturday"   
+boxvip   "Box/VIP YES"
+gametime "Evening"    
+opponent "Cleveland"  
+
+Question 14 
+         alt.1       
+price    "PRICE $119"
+seating  "Courtside" 
+weekday  "Sunday"    
+boxvip   "Box/VIP NO"
+gametime "Afternoon" 
+opponent "Indiana"   
+
+Question 15 
+         alt.1        
+price    "PRICE $80"  
+seating  "Lower Level"
+weekday  "Sunday"     
+boxvip   "Box/VIP YES"
+gametime "Afternoon"  
+opponent "Cleveland"  
+
+Question 16 
+         alt.1        
+price    "PRICE $195" 
+seating  "Upper Level"
+weekday  "Friday"     
+boxvip   "Box/VIP YES"
+gametime "Afternoon"  
+opponent "Indiana"    
+

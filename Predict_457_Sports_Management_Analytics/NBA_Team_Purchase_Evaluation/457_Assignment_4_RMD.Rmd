@@ -1,0 +1,37 @@
+---
+title: "Evaluating the Purchase of a NBA Franchise"
+author: "Scott Herman"
+date: "2/19/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rticles)
+```
+
+#Executive Summary  
+
+The purpose of this analysis is to evaluate the current market value and future financial returns related to an investment decision in purchasing one of two NBA Franchises; the Detroit Pistons or Clevelend Cavaliers.  Both of these organizations provide unique investment opportunities. 
+
+The Cleveland Cavaliers are coming off of a championship season and hold the rights to the best player in the game, Lebron James, who is set to earn a base salary of over $30 million dollars over the next three seasons. In addition to James, the team has a number of other star-caliber players who contribute to the team's league-high payroll of $115 million.  The Cavs' 2015-16 paryoll was far above the NBA's luxury tax threshold of $84.7 million and triggered a penalty of $54 million dollars ultimatley resulting in an operating income loss of 40 million last season. 
+
+On the other side of the equation, Detroit's payroll did not bring any luxury tax penalties to be paid, and showed a positive operating income of $21.8 million last season. Additionally, the team announced that they will be moving the franchise away from The Palace of Auburn Hills, and will relocate to the newly constructed Little Caesar's Arena starting with the 2017-18 season, where they will be sharing the space, and revenues, with the Red Wings. The relocation will bring some initial up-front costs to the franchise in the short term, but has the potential to optimize profits in the long-term.
+
+#Methodology  
+
+In order to make the best decision that will yield the greatest five-year return on investment, this analysis will utilize a discounted cash flow analysis and considers the current asking price for each team along with the anticpated revenues and expenses over the length of the five year investment period. The financial data for each franchise was collected from a number of reputable sources and enables us to understand current cash inflows and outflows for each of these oranizations, as well as their current market values.  It is understood that this type of investment decision will not lead to a perfectly predictable outcome. In order to control for this uncertainty, we have utilized the net presetn values across three outcomes and have multiplied by their probabilities of occurence. The sum of these products allows us to obtain the expected value of the investment through a probability weighted combination of the net present values. Additionally, this analysis assumes a 5% year-over-year inflation rate which will promote increased accuracy within the projected returns achieved over the duration of the invesment.
+
+#Recommendation to Management  
+
+Although the Cleveland Cavaliers are currenlty valued higher than the Detroit Pistons, Cleveland's negative operating income presents a significant risk in a long-term investment opportunity.  The results of our discounted cash flow analysis show that buying the Cavaliers at the current $1.2 billion market value, would produce a positive return of $248 million.  On the other side, if the investment group was to purchase the Detroit Pistons today for their current $900 million market value, we would yield a return of $605 million at the end of the investment period.  These results allow us to confidently recommend that purchasing the Detroit Pistons would not only provide less risk, but also yield a much higher return.
+
+![Expected Franchise Values](/Users/sth/Desktop/market_value.png)
+
+![Forbes: Detroit Team Value](/Users/sth/Desktop/det_forbes.png)
+
+![Forbes: Cleveland Team Value](/Users/sth/Desktop/cle_forbes.png)
+ 
+
+
+

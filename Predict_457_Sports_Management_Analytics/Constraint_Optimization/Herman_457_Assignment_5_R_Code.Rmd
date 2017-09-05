@@ -1,0 +1,99 @@
+---
+title: 'NBA Draft Analysis: 2016'
+author: "Scott Herman"
+date: "March 5th, 2017"
+output: pdf_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(knitr)
+library(lattice)
+library(lpSolve)
+library(tidyverse)
+library(car)
+
+#Import 2016 NBA Draft Data
+nba_work <- read.csv('nba.work.csv',stringsAsFactors = FALSE)
+
+#Create Variable Consideration Set
+Player<- nba_work$Player
+Games<- as.numeric(nba_work$Games) 
+Minutes<- as.numeric(nba_work$Minutes)
+Points<- as.numeric(nba_work$Points)
+FG.<- as.numeric(nba_work$FG.)
+X3P.<- as.numeric(nba_work$X3P.)
+FT.<- as.numeric(nba_work$FT.)
+WS.48<- as.numeric(nba_work$WS.48)
+BPM<- as.numeric(nba_work$BPM)
+VORP<- as.numeric(nba_work$VORP)
+COST<- as.numeric(nba_work$COST)
+Pos<- nba_work$Pos
+AST<- as.numeric(nba_work$AST)
+
+MPG<- Minutes/Games
+PPG<- Points/Games
+APG<- AST/Games
+
+nba_work<- cbind(nba_work,MPG,PPG,APG)
+
+```
+
+#Executive Summary  
+
+The purpose of this analysis is to evaluate the player selections from the 2016 NBA Draft in an attempt to identify a set of players who are currenlty outperforming their rookie contracts. Management has tasked us to provide a strategic recommendation to aid their roster management and player acquisition strategy for the upcoming draft and next year's season. Additionally, the team recently made an internal decision not to re-sign the team's best scorer at the PG/SG position. Although this may lead to a decrease in offensive production, the franchise felt that this type of production could come from elsewhere, and for substantially less money. After accounting for this future decision and reviewing the team's current salary cap, the franchise is projected to be $10 million below the Salary Cap, even after accounting for a first and second round pick. 
+
+Our data set consists of the 60 best players from last year's draft, and includes a number of performance variables, as well as their current salary terms with their respective teams. Although the NBA's rookie contracts generally expire after four years, this analysis will help find undervalued assets that can be utilized in draft day trades and future deals. In order to develop a solution we will need to identify a set of five players that will maximize the team's on-court production while limiting our spend to under $10 million. Given the team's situation and need to secure a scorer, we have decided to evaluate these players based upon their current per game point totals. This metric will then be utilized within a developed constraint optimizaiton model that we will maximize the points per game contribution of our selected set of players, while also brining a total contract value of under $10 million. Additionally, management has requested that we select at least one player at center, and no more than two at the forward and guard positions. Before developing our model, we will visualize the data to understand to understand these relationships.
+
+The figue below showcases a set of boxplots for the current NBA salary and point production by position, for each first-year player collected within our consideration set. It appears that the median salaries are similar in value across each position, though it appears that the Small-Forward and Shooting-Guard positions were worth a bit more. The maximum contract value peaks out at $5.2M, which was given to a Small-Forward. The Center and Point Guard positions appeared to be less expensive for the most part, but perhaps these player's weren't as highly touted or talented. 
+
+In reviewing how the breakdown points per game is allocated across position, we can see that it's failry aligned with how the contracts were valued. In terms of production, the Small-Forwards and Shooting-Guards appear to be the highest contributors to their teams. Though there are a couple of players outperforming at the Point-Guard and Center positions. 
+
+\newpage  
+
+```{r}
+par(mfrow=c(1,1))
+
+boxplot(nba_work$COST~nba_work$Pos,ylab="Salary ($/Million)",main="Figure 1: Rookie Salary and PPG by Player Position")
+
+boxplot(nba_work$PPG~nba_work$Pos,ylab="PPG",xlab="Position")
+
+```
+
+
+
+
+#Results and Recommended Selection
+After understanding the allocation of spend and performance contribution, the data was plugged into a constrained optimizaiton model. The results from this output are given below.
+
+Player            | Pos  | PPG     | Salary      |  
+------------------|------|---------|-------------|  
+Ivica Zubac       | C    | 5.8     | $1.034      |  
+Isaiah Whitehead  | PG   | 7.3     | $1.074      |  
+Brandon Ingram    | SF   | 8.2     | $5.281      |   
+Caris LeVert      | SF   | 7.1     | $1.562      |  
+Malcolm Brogdon   | SG   | 9.9     | $0.925      |  
+
+Table: Constraint Optimizaiton Model Results  
+
+These results achieved a result that met the requirements of our given constraints. The model yielded two Small-Forwards, two Guards, and one center, while limiting the total sum of salaries to $9.87 million. This also suggests that this combination of players is projected to bring a maximized total of 38.5 points per game contributed to the team. This validates the team's decision to not re-sign their veteran scoring guard, as he's expecting to earn updwards of $15 million a year, while his future production potentially continues to decline.  
+
+#Appendix
+
+```{r}
+
+rook_ppg <- ggplot(data=nba_work) +
+  geom_point(mapping=aes(x=Player,y=PPG,colour=Pos),size=5)+
+  ggtitle("NBA Rookie PPG 2016-17")+
+  theme(plot.title=element_text(hjust=0.5,size=20)) 
+rook_ppg + theme(axis.text.x=element_text(angle=90,hjust=1,size=10),axis.title.x=element_blank())
+
+
+
+```
+
+

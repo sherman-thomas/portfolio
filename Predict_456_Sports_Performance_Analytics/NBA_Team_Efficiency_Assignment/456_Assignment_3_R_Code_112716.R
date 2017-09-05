@@ -1,0 +1,283 @@
+setwd("/Users/sth/Desktop/R/R DIRECTORY/EXCEL DATA/NBA.PER.POSS")
+library(ggplot2)
+library(rvest)
+library(stringr)
+library(tidyr)
+require(moments)
+require(rockchalk)
+library(lattice)
+
+#Read in CSV Files for each season
+
+NBA1516<- read.csv('NBA_POSS_1516.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1415<- read.csv('NBA_POSS_1415.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1314<- read.csv('NBA_POSS_1314.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1213<- read.csv('NBA_POSS_1213.csv', header=TRUE,stringsAsFactors = FALSE)
+
+NBA.PER.POSSESION.2012.thru.2016<- data.frame(cbind(NBA1516,NBA1415,NBA1314,NBA1213,stringsAsFactors=FALSE))
+#write.csv(NBA.PER.POSSESION.2012.thru.2016, file = "NBA.PER.POSSESSION.1213.THRU.1516.csv", row.names = FALSE)
+
+setwd("/Users/sth/Desktop/R/R DIRECTORY/EXCEL DATA/NBA.OPP")
+NBA1516_OPP<- read.csv('NBA_OPP_1516.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1415_OPP<- read.csv('NBA_OPP_1415.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1314_OPP<- read.csv('NBA_OPP_1314.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1213_OPP<- read.csv('NBA_OPP_1213.csv', header=TRUE,stringsAsFactors = FALSE)
+
+NBA.OPP.PER.POSSESION.2012.thru.2016<- data.frame(cbind(NBA1516_OPP,NBA1415_OPP,NBA1314_OPP,NBA1213_OPP,stringsAsFactors=FALSE))
+#write.csv(NBA.OPP.PER.POSSESION.2012.thru.2016, file = "NBA.OPP.PER.POSSESSION.1213.THRU.1516.csv", row.names = FALSE)
+
+setwd("/Users/sth/Desktop/R/R DIRECTORY/EXCEL DATA/NBA.FF")
+NBA1516_FF<- read.csv('NBA_FF_1516.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1415_FF<- read.csv('NBA_FF_1415.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1314_FF<- read.csv('NBA_FF_1314.csv', header=TRUE,stringsAsFactors = FALSE)
+NBA1213_FF<- read.csv('NBA_FF_1213.csv', header=TRUE,stringsAsFactors = FALSE)
+
+NBA.FF.2012.thru.2016<- data.frame(cbind(NBA1516_FF,NBA1415_FF,NBA1314_FF,NBA1213_FF,stringsAsFactors=FALSE))
+#write.csv(NBA.FF.2012.thru.2016, file = "NBA.FF.1213.THRU.1516.csv", row.names = FALSE)
+
+#Create names NBA Team Per Possession Variables and combine data from 2012-13 through 2015-16 seasons
+TEAM<- as.character(unique(c(NBA1516$Team,NBA1415$Team,NBA1314$Team,NBA1213$Team)))
+WIN.PCT<- as.numeric(c(NBA1516$W.,NBA1415$W.,NBA1314$W.,NBA1213$W.))
+GP<- as.numeric(c(NBA1516$GP,NBA1415$GP,NBA1314$GP,NBA1213$GP))
+MIN<- as.numeric(c(NBA1516$MIN,NBA1415$MIN,NBA1314$MIN,NBA1213$MIN))
+FGM<- as.numeric(c(NBA1516$FGM,NBA1415$FGM,NBA1314$FGM,NBA1213$FGM))
+FGA<- as.numeric(c(NBA1516$FGA,NBA1415$FGA,NBA1314$FGA,NBA1213$FGA))
+FG.PCT<- as.numeric(c(NBA1516$FG.,NBA1415$FG.,NBA1314$FG.,NBA1213$FG.))
+X3PM<- as.numeric(c(NBA1516$X3PM,NBA1415$X3PM,NBA1314$X3PM,NBA1213$X3PM))
+X3PA<- as.numeric(c(NBA1516$X3PA,NBA1415$X3PA,NBA1314$X3PA,NBA1213$X3PA))
+X3P.PCT<- as.numeric(c(NBA1516$X3P.,NBA1415$X3P.,NBA1314$X3P.,NBA1213$X3P.))
+FTM<- as.numeric(c(NBA1516$FTM,NBA1415$FTM,NBA1314$FTM,NBA1213$FTM))
+FTA<- as.numeric(c(NBA1516$FTA,NBA1415$FTA,NBA1314$FTA,NBA1213$FTA))
+FT.PCT<- as.numeric(c(NBA1516$FT.,NBA1415$FT.,NBA1314$FT.,NBA1213$FT.))
+OREB<- as.numeric(c(NBA1516$OREB,NBA1415$OREB,NBA1314$OREB,NBA1213$OREB))
+DREB<- as.numeric(c(NBA1516$DREB,NBA1415$DREB,NBA1314$DREB,NBA1213$DREB))
+REB<- as.numeric(c(NBA1516$REB,NBA1415$REB,NBA1314$REB,NBA1213$REB))
+AST<- as.numeric(c(NBA1516$AST,NBA1415$AST,NBA1314$AST,NBA1213$AST))
+TOV<- as.numeric(c(NBA1516$TOV,NBA1415$TOV,NBA1314$TOV,NBA1213$TOV))
+STL<- as.numeric(c(NBA1516$STL,NBA1415$STL,NBA1314$STL,NBA1213$STL))
+BLK<- as.numeric(c(NBA1516$BLK,NBA1415$BLK,NBA1314$BLK,NBA1213$BLK))
+BLKA<- as.numeric(c(NBA1516$BLKA,NBA1415$BLKA,NBA1314$BLKA,NBA1213$BLKA))
+PF<- as.numeric(c(NBA1516$PF,NBA1415$PF,NBA1314$PF,NBA1213$PF))
+PFD<- as.numeric(c(NBA1516$PFD,NBA1415$PFD,NBA1314$PFD,NBA1213$PFD))
+PTS<- as.numeric(c(NBA1516$PTS,NBA1415$PTS,NBA1314$PTS,NBA1213$PTS))
+PLUS.MINUS<- as.numeric(c(NBA1516$X.,NBA1415$X.,NBA1314$X.,NBA1213$X.))
+
+#Combine varaibles for Team Per Possession Data Frame 
+NBA.PP<-cbind(GP,MIN,WIN.PCT,FGM,FGA,FG.PCT,X3PM,X3PA,X3P.PCT,
+              FTM,FTA,FT.PCT,OREB,DREB,REB,AST,TOV,STL,BLK,BLKA,
+              PF,PFD,PTS,PLUS.MINUS)
+
+#Create names for Opposition Team Per Possession Varaibles and combine data from 2012-13 through 2015-16 seasons
+OPP.TEAM<- as.character(c(NBA1516_OPP$Team,NBA1415_OPP$Team,NBA1314_OPP$Team,NBA1213_OPP$Team))
+OPP.FGM<- as.numeric(c(NBA1516_OPP$OPP.FGM,NBA1415_OPP$OPP.FGM,NBA1314_OPP$OPP.FGM,NBA1213_OPP$OPP.FGM))
+OPP.FGA<- as.numeric(c(NBA1516_OPP$OPP.FGA,NBA1415_OPP$OPP.FGA,NBA1314_OPP$OPP.FGA,NBA1213_OPP$OPP.FGA))
+OPP.FG.PCT<- as.numeric(c(NBA1516_OPP$OPP.FG.,NBA1415_OPP$OPP.FG.,NBA1314_OPP$OPP.FG.,NBA1213_OPP$OPP.FG.))
+OPP.X3PM<- as.numeric(c(NBA1516_OPP$OPP.X3PM,NBA1415_OPP$OPP.X3PM,NBA1314_OPP$OPP.X3PM,NBA1213_OPP$OPP.X3PM))
+OPP.X3PA<- as.numeric(c(NBA1516_OPP$OPP.X3PA,NBA1415_OPP$OPP.X3PA,NBA1314_OPP$OPP.X3PA,NBA1213_OPP$OPP.X3PA))
+OPP.X3P.PCT<- as.numeric(c(NBA1516_OPP$OPP.X3P.,NBA1415_OPP$OPP.X3P.,NBA1314_OPP$OPP.X3P.,NBA1213_OPP$OPP.X3P.))
+OPP.FTM<- as.numeric(c(NBA1516_OPP$OPP.FTM,NBA1415_OPP$OPP.FTM,NBA1314_OPP$OPP.FTM,NBA1213_OPP$OPP.FTM))
+OPP.FTA<- as.numeric(c(NBA1516_OPP$OPP.FTA,NBA1415_OPP$OPP.FTA,NBA1314_OPP$OPP.FTA,NBA1213_OPP$OPP.FTA))
+OPP.FT.PCT<-as.numeric(c(NBA1516_OPP$OPP.FT.,NBA1415_OPP$OPP.FT.,NBA1314_OPP$OPP.FT.,NBA1213_OPP$OPP.FT.))
+OPP.REB<- as.numeric(c(NBA1516_OPP$OPP.REB,NBA1415_OPP$OPP.REB,NBA1314_OPP$OPP.REB,NBA1213_OPP$OPP.REB))
+OPP.OREB<- as.numeric(c(NBA1516_OPP$OPP.OREB,NBA1415_OPP$OPP.OREB,NBA1314_OPP$OPP.OREB,NBA1213_OPP$OPP.OREB))  
+OPP.DREB<- as.numeric(c(NBA1516_OPP$OPP.DREB,NBA1415_OPP$OPP.DREB,NBA1314_OPP$OPP.DREB,NBA1213_OPP$OPP.DREB))  
+OPP.AST<- as.numeric(c(NBA1516_OPP$OPP.AST,NBA1415_OPP$OPP.AST,NBA1314_OPP$OPP.AST,NBA1213_OPP$OPP.AST))
+OPP.STL<- as.numeric(c(NBA1516_OPP$OPP.STL,NBA1415_OPP$OPP.STL,NBA1314_OPP$OPP.STL, NBA1213_OPP$OPP.STL))
+OPP.TOV<- as.numeric(c(NBA1516_OPP$OPP.TOV,NBA1415_OPP$OPP.TOV,NBA1314_OPP$OPP.TOV,NBA1213_OPP$OPP.TOV))
+OPP.BLK<- as.numeric(c(NBA1516_OPP$OPP.BLK,NBA1415_OPP$OPP.BLK,NBA1314_OPP$OPP.BLK,NBA1213_OPP$OPP.BLK))
+OPP.BLKA<- as.numeric(c(NBA1516_OPP$OPP.BLKA,NBA1415_OPP$OPP.BLKA,NBA1314_OPP$OPP.BLKA,NBA1213_OPP$OPP.BLKA))
+OPP.PF<- as.numeric(c(NBA1516_OPP$OPP.PF,NBA1415_OPP$OPP.PF,NBA1314_OPP$OPP.PF,NBA1213_OPP$OPP.PF))
+OPP.PFD<- as.numeric(c(NBA1516_OPP$OPP.PFD,NBA1415_OPP$OPP.PFD,NBA1314_OPP$OPP.PFD,NBA1213_OPP$OPP.PFD))
+OPP.PTS<- as.numeric(c(NBA1516_OPP$OPP.PTS,NBA1415_OPP$OPP.PTS,NBA1314_OPP$OPP.PTS,NBA1213_OPP$OPP.PTS))
+
+#Combine Variables for Team Opponent Data Frame                   
+NBA.OPP.1316<-cbind(OPP.FGM,OPP.FGA,OPP.FG.PCT,OPP.X3PM,OPP.X3PA,OPP.X3P.PCT,OPP.FTM,OPP.FTA,
+                    OPP.FT.PCT,OPP.OREB,OPP.DREB,OPP.REB,OPP.AST,OPP.TOV,OPP.STL,OPP.BLK,OPP.BLKA,
+                    OPP.PF,OPP.PFD,OPP.PTS)
+
+#Create Names for Team Four Factor Variables and combine data from 2012-13 through 2015-16 seasons
+FF.TEAM<- as.character(c(NBA1516_FF$Team,NBA1415_FF$Team,NBA1314_FF$Team,NBA1213_FF$Team))
+FF.GP<- as.numeric(c(NBA1516_FF$GP,NBA1415_FF$GP,NBA1314_FF$GP,NBA1213_FF$GP))
+FF.WIN<- as.numeric(c(NBA1516_FF$W,NBA1415_FF$W,NBA1314_FF$W,NBA1213_FF$W))
+FF.L<- as.numeric(c(NBA1516_FF$L,NBA1415_FF$L,NBA1314_FF$L,NBA1213_FF$L))
+W.PCT<- as.numeric(c(NBA1516_FF$W.,NBA1415_FF$W.,NBA1314_FF$W.,NBA1213_FF$W.))
+FF.MIN<- as.ts(c(NBA1516_FF$MIN,NBA1415_FF$MIN,NBA1314_FF$MIN,NBA1213_FF$MIN))
+E.FG<- as.numeric(c(NBA1516_FF$eFG.,NBA1415_FF$eFG.,NBA1314_FF$eFG.,NBA1213_FF$eFG.))
+FTA.RATE<- as.numeric(c(NBA1516_FF$FTA.Rate,NBA1415_FF$FTA.Rate,NBA1314_FF$FTA.Rate,NBA1213_FF$FTA.Rate))
+TO.RATIO<- as.numeric(c(NBA1516_FF$TO.Ratio,NBA1415_FF$TO.Ratio,NBA1314_FF$TO.Ratio,NBA1213_FF$TO.Ratio))
+OREB.RATE<- as.numeric(c(NBA1516_FF$OREB.,NBA1415_FF$OREB.,NBA1314_FF$OREB.,NBA1213_FF$OREB.))
+OPP.E.FG<- as.numeric(c(NBA1516_FF$Opp.eFG.,NBA1415_FF$Opp.eFG.,NBA1314_FF$Opp.eFG.,NBA1213_FF$Opp.eFG.))
+OPP.FTA.RATE<- as.numeric(c(NBA1516_FF$Opp.FTA.Rate,NBA1415_FF$Opp.FTA.Rate,NBA1314_FF$Opp.FTA.Rate,NBA1213_FF$Opp.FTA.Rate))
+OPP.TO.RATIO<- as.numeric(c(NBA1516_FF$Opp.To.Ratio,NBA1415_FF$Opp.To.Ratio,NBA1314_FF$Opp.To.Ratio,NBA1213_FF$Opp.To.Ratio))
+OPP.OREB.RATE<- as.numeric(c(NBA1516_FF$Opp.OREB.,NBA1415_FF$Opp.OREB.,NBA1314_FF$Opp.OREB.,NBA1213_FF$Opp.OREB.))
+
+#Combine Variables for Four Factor Data Frame
+FF <-cbind(FF.GP,FF.WIN,FF.L,W.PCT,E.FG,FTA.RATE,TO.RATIO,OREB.RATE,OPP.E.FG,OPP.FTA.RATE, OPP.TO.RATIO,OPP.OREB.RATE)
+FF.NBA1316<-data.frame(FF)
+summary(FF.NBA1316)
+str(FF.NBA1316)
+head(FF.NBA1316)
+
+#write.csv(FF.NBA1316, file = "NBA.FOUR_FACTOR.DATA.1213.THRU.1516.csv", row.names = FALSE)
+
+###############################################################################################
+#ASSIGNMENT 3 SPECIFIC CODE
+
+#combine variables for Team Efficiency Analysis
+NBA.POINTS<-cbind(W.PCT,PTS,E.FG,FTA.RATE,TO.RATIO,OREB.RATE,
+                  OPP.E.FG,OPP.FTA.RATE,OPP.TO.RATIO,OPP.OREB.RATE,PTS,OPP.PTS)
+
+NBA.POINTS<-data.frame(NBA.POINTS)
+summary(NBA.POINTS)
+str(NBA.POINTS)
+
+pairs(cbind(W.PCT,PTS,E.FG,FTA.RATE,OREB.RATE,TO.RATIO))
+pairs(cbind(W.PCT,OPP.E.FG,OPP.FTA.RATE,OPP.TO.RATIO,OPP.OREB.RATE,OPP.PTS))
+
+par(mfrow=c(2,2))
+qqnorm(E.FG,main="QQ Plot of EFG Rate")
+qqnorm(OPP.E.FG,main="QQ Plot of Opp EFG Rate")
+qqnorm(FTA.RATE,main="QQ Plot of FTA Rate")
+qqnorm(OPP.FTA.RATE,main="QQ Plot of OPP FTA Rate")
+
+qqnorm(OREB.RATE,main="QQ Plot of OREB Rate")
+qqnorm(OPP.OREB.RATE,main="QQ Plot of OPP OREB Rate")
+qqnorm(TO.RATIO,main="QQ Plot of TO RATIO")
+qqnorm(OPP.TO.RATIO,main="QQ Plot of OPP TO RATIO")
+
+par(mfrow=c(2,2))
+hist(PTS,main ="Histogram of PTS Distribution")
+qqnorm(PTS,main ="QQ Plot PTS Distribution")
+hist(OPP.PTS,main ="OPP PTS Distribution")
+qqnorm(OPP.PTS,main ="QQ Plot OPP PTS")
+
+cor(PTS,NBA.POINTS,use="all.obs",method=c("pearson","kendall","spearman"))
+cor(OPP.PTS,NBA.POINTS)
+
+cor.test(PTS,E.FG,W.PCT),cor.test(PTS,W.PCT),cor.test(PTS,FTA.RATE),cor.test(PTS,OPP.TO.RATIO),cor.test(PTS,OREB.RATE),cor.test(PTS,OPP.OREB.RATE),cor.test(PTS,OPP.FTA.RATE),cor.test(PTS,OPP.PTS),cor.test(PTS,TO.RATIO),cor.test(PTS,OPP.E.FG)
+
+cor.test(OPP.PTS,E.FG)
+cor.test(OPP.PTS,W.PCT)
+cor.test(OPP.PTS,FTA.RATE)
+cor.test(OPP.PTS,OPP.TO.RATIO)
+cor.test(OPP.PTS,OREB.RATE)
+cor.test(OPP.PTS,OPP.OREB.RATE)
+cor.test(OPP.PTS,OPP.FTA.RATE)
+cor.test(OPP.PTS,PTS)
+cor.test(OPP.PTS,TO.RATIO)
+cor.test(OPP.PTS,OPP.E.FG)
+
+
+par(mfrow=c(2,3))
+plot(PTS~E.FG)
+plot(PTS~W.PCT)
+plot(PTS~FTA.RATE)
+plot(PTS~OPP.PTS)
+plot(PTS~OPP.TO.RATIO)
+plot(PTS~OREB.RATE)
+
+plot(OPP.PTS~OPP.E.FG)
+plot(OPP.PTS~OPP.FTA.RATE)
+plot(OPP.PTS~PTS)
+plot(OPP.PTS~E.FG)
+plot(OPP.PTS~OPP.OREB.RATE)
+plot(OPP.PTS~W.PCT)
+
+pairs(cbind(PTS,E.FG,FTA.RATE,TO.RATIO,OREB.RATE))
+pairs(cbind(OPP.PTS,OPP.E.FG,OPP.FTA.RATE,OPP.TO.RATIO,OPP.OREB.RATE))
+
+
+PTS.MODEL.1<- lm(PTS~E.FG+W.PCT+FTA.RATE+OPP.TO.RATIO+OREB.RATE+OPP.OREB.RATE+
+                   OPP.FTA.RATE+OPP.PTS+TO.RATIO+OPP.E.FG,direction="step")
+summary(PTS.MODEL.1)
+
+PTS.MODEL.2<- lm(PTS~W.PCT+E.FG+OREB.RATE+FTA.RATE+TO.RATIO)
+summary(PTS.MODEL.2)
+
+PTS.MODEL.3<- lm(PTS~E.FG+OREB.RATE+FTA.RATE+TO.RATIO)
+summary(PTS.MODEL.3)
+        
+PTS.MODEL.4<- step(PTS.MODEL.1,direction="backward")
+summary(PTS.MODEL.4)
+
+OPP.PTS.MODEL.1<- lm(OPP.PTS~E.FG+W.PCT+FTA.RATE+OPP.TO.RATIO+OREB.RATE+OPP.OREB.RATE+
+                       OPP.FTA.RATE+OPP.PTS+TO.RATIO+OPP.E.FG,direction="step")
+summary(OPP.PTS.MODEL.1)
+
+OPP.PTS.MODEL.2<- lm(OPP.PTS~W.PCT+OPP.E.FG+OPP.OREB.RATE+OPP.FTA.RATE+OPP.TO.RATIO)
+summary(OPP.PTS.MODEL.2)
+
+OPP.PTS.MODEL.3<- lm(OPP.PTS~OPP.E.FG+OPP.OREB.RATE+OPP.FTA.RATE+OPP.TO.RATIO)
+summary(OPP.PTS.MODEL.3)
+
+OPP.PTS.MODEL.4<- step(OPP.PTS.MODEL.1,direction="backward")
+summary(OPP.PTS.MODEL.4)
+
+TEST.2<- lm(OPP.PTS~E.FG+PTS+OREB.RATE+W.PCT+OPP.FTA.RATE+OPP.OREB.RATE+OPP.TO.RATIO+OPP.E.FG)
+summary(TEST.2)
+
+coef(PTS.MODEL)
+plot(PTS.MODEL)
+residuals<-PTS.MODEL$residuals
+pred<- predict(PTS.MODEL)
+plot(residuals)
+plot(pred)
+plot(pred,residuals)
+plot(rstandard(PTS.MODEL))
+plot(rstudent(PTS.MODEL))
+plot(fitted(PTS.MODEL))
+confint(PTS.MODEL)
+
+FITVAL<- PRED.PTS$fit
+SE<- PRED.PTS$se.fit
+plot(FITVAL)
+plot(SE)
+boxplot(residuals,ylab='Residuals')
+
+#VIF FACTORS
+summary(lm(E.FG~OREB.RATE+FTA.RATE+TO.RATIO))
+summary(lm(OREB.RATE~FTA.RATE+TO.RATIO+E.FG))
+summary(lm(FTA.RATE~OREB.RATE+E.FG+TO.RATIO))
+summary(lm(TO.RATIO~OREB.RATE+E.FG+FTA.RATE))
+
+OPP.PTS.MODEL<- lm(OPP.PTS~OPP.E.FG+OPP.OREB.RATE+OPP.FTA.RATE+OPP.TO.RATIO)
+summary(OPP.PTS.MODEL)
+coef(OPP.PTS.MODEL)
+opp.residuals<-OPP.PTS.MODEL$residuals
+plot(opp.residuals)
+plot(rstandard(OPP.PTS.MODEL))
+plot(rstudent(OPP.PTS.MODEL))
+plot(fitted(OPP.PTS.MODEL))
+confint(OPP.PTS.MODEL)
+OPP.FITVAL<- OPP.PTS.MODEL$fit
+plot(OPP.PTS.MODEL$fit)
+boxplot(OPP.PTS.MODEL$residuals,ylab='Residuals')
+
+
+
+PTS.DIFF<- PTS-OPP.PTS
+E.FG.DIFF<- E.FG-OPP.E.FG
+FTA.RATE.DIFF<- FTA.RATE-OPP.FTA.RATE
+OREB.RATE.DIFF<- OREB.RATE-OPP.OREB.RATE
+TO.DIFF<- TO.RATIO-OPP.TO.RATIO
+
+DIFF.MODEL<- lm(PTS.DIFF~E.FG.DIFF+FTA.RATE.DIFF+OREB.RATE.DIFF+TO.DIFF)
+summary(DIFF.MODEL)
+coef(DIFF.MODEL)
+plot(DIFF.MODEL)
+plot(DIFF.MODEL$residuals)
+plot(rstandard(DIFF.MODEL))
+plot(rstudent(DIFF.MODEL))
+plot(fitted(DIFF.MODEL))
+confint(DIFF.MODEL)
+DIFF.FITVAL<- DIFF.MODEL$fit
+DIFF.SE<- DIFF.MODEL$se.fit
+plot(DIFF.FITVAL)
+boxplot(DIFF.MODEL$residuals,ylab='Residuals')
+
+par(mfrow=c(1,2))
+boxplot(PTS~WIN.PCT)
+boxplot(OPP.PTS~WIN.PCT)
+boxplot(PTS~E.FG)
+boxplot(OPP.PTS~OPP.E.FG)
+

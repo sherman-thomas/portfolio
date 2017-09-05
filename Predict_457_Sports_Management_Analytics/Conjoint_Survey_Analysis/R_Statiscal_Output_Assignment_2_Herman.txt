@@ -1,0 +1,168 @@
+R Code:
+
+> print(summary(main.effects.model.fit))
+
+Call:
+lm.default(formula = main.effects.model, data = conjoint.data.frame)
+
+Residuals:
+   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16
+-0.5  0.5  0.5 -0.5 -0.5 -0.5  0.5  0.5 -0.5  0.5 -0.5  0.5 -0.5  0.5 -0.5  0.5
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)
+(Intercept)  8.500e+00  5.000e-01  17.000   0.0374 *
+price1      -7.500e-01  8.660e-01  -0.866   0.5456
+price2       1.500e+00  8.660e-01   1.732   0.3333
+price3      -1.250e+00  8.660e-01  -1.443   0.3857
+seating1    -1.750e+00  8.660e-01  -2.021   0.2926
+seating2     2.000e+00  8.660e-01   2.309   0.2601
+seating3     2.750e+00  8.660e-01   3.175   0.1942
+weekday1     2.750e+00  8.660e-01   3.175   0.1942
+weekday2     2.500e+00  8.660e-01   2.887   0.2123
+weekday3    -4.500e+00  8.660e-01  -5.196   0.1210
+boxvip1      7.500e-01  5.000e-01   1.500   0.3743
+gametime1    7.772e-16  5.000e-01   0.000   1.0000
+opponent1    2.250e+00  8.660e-01   2.598   0.2339
+opponent2    2.000e+00  8.660e-01   2.309   0.2601
+opponent3   -1.500e+00  8.660e-01  -1.732   0.3333
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 2 on 1 degrees of freedom
+Multiple R-squared:  0.9882,     Adjusted R-squared:  0.8235
+F-statistic:     6 on 14 and 1 DF,  p-value: 0.3107
+
+> conjoint.results
+$contrasts
+$contrasts$price
+[1] "contr.sum"
+
+$contrasts$seating
+[1] "contr.sum"
+
+$contrasts$weekday
+[1] "contr.sum"
+
+$contrasts$boxvip
+[1] "contr.sum"
+
+$contrasts$gametime
+[1] "contr.sum"
+
+$contrasts$opponent
+[1] "contr.sum"
+
+
+$xlevels
+$xlevels$price
+[1] "$119 " "$195 " "$58 "  "$80 "
+
+$xlevels$seating
+[1] "Courtside "  "Lower Level" "Mid Level "  "Upper Level"
+
+$xlevels$weekday
+[1] "Friday     " "Mon-Thurs "  "Saturday   " "Sunday     "
+
+$xlevels$boxvip
+[1] "Box/VIP NO " "Box/VIP YES"
+
+$xlevels$gametime
+[1] "Afternoon  " "Evening    "
+
+$xlevels$opponent
+[1] "Chicago    " "Cleveland "  "Indiana    " "Milwaukee  "
+
+
+$coefficients
+  (Intercept)        price1        price2        price3      seating1      seating2      seating3
+8.500000e+00 -7.500000e-01  1.500000e+00 -1.250000e+00 -1.750000e+00  2.000000e+00  2.750000e+00
+     weekday1      weekday2      weekday3       boxvip1     gametime1     opponent1     opponent2
+2.750000e+00  2.500000e+00 -4.500000e+00  7.500000e-01  7.771561e-16  2.250000e+00  2.000000e+00
+    opponent3
+-1.500000e+00
+
+$attributes
+[1] "price"    "seating"  "weekday"  "boxvip"   "gametime" "opponent"
+
+$part.worths
+$part.worths$price
+[1] -0.75  1.50 -1.25  0.50
+
+$part.worths$seating
+[1] -1.75  2.00  2.75 -3.00
+
+$part.worths$weekday
+[1]  2.75  2.50 -4.50 -0.75
+
+$part.worths$boxvip
+[1]  0.75 -0.75
+
+$part.worths$gametime
+[1]  7.771561e-16 -7.771561e-16
+
+$part.worths$opponent
+[1]  2.25  2.00 -1.50 -2.75
+
+
+$part.worth.ranges
+$part.worth.ranges$price
+[1] 2.75
+
+$part.worth.ranges$seating
+[1] 5.75
+
+$part.worth.ranges$weekday
+[1] 7.25
+
+$part.worth.ranges$boxvip
+[1] 1.5
+
+$part.worth.ranges$gametime
+[1] 1.554312e-15
+
+$part.worth.ranges$opponent
+[1] 5
+
+
+$attribute.importance
+$attribute.importance$price
+[1] 12.35955
+
+$attribute.importance$seating
+[1] 25.8427
+
+$attribute.importance$weekday
+[1] 32.58427
+
+$attribute.importance$boxvip
+[1] 6.741573
+
+$attribute.importance$gametime
+[1] 6.985673e-15
+
+$attribute.importance$opponent
+[1] 22.47191
+
+
+> part.worths
+$price
+[1] -0.75  1.50 -1.25  0.50
+
+$seating
+[1] -1.75  2.00  2.75 -3.00
+
+$weekday
+[1]  2.75  2.50 -4.50 -0.75
+
+$boxvip
+[1]  0.75 -0.75
+
+$gametime
+[1]  7.771561e-16 -7.771561e-16
+
+$opponent
+[1]  2.25  2.00 -1.50 -2.75
+
+> sum.part.worth.ranges
+[1] 22.25

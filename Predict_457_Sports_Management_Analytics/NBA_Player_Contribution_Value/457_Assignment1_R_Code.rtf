@@ -1,0 +1,264 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf810
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ---\
+title: "Evaluating NBA Player Value"\
+author: "Scott Herman"\
+date: "January 28th, 2017"\
+output: pdf_document\
+---\
+\
+```\{r setup, include=FALSE\}\
+knitr::opts_chunk$set(echo = FALSE)\
+\
+setwd("/Users/sth/Desktop/R")\
+library(rvest)\
+library(stringr)\
+library(tidyr)\
+library(ggplot2)\
+library(knitr)\
+library(lattice)\
+library(lubridate)\
+library(plyr)\
+library(dplyr)\
+library(plotly)\
+library(rockchalk)\
+library(moments)\
+library(tidyr)\
+library(lpSolve)\
+library(rticles)\
+library(tidyverse)\
+\
+#import nba player stats and contract salary data from basketball-reference.com\
+NBA_PLAYER_STATS_1617 <- read.csv("player_stats_1617_12817.csv", stringsAsFactors = FALSE)\
+summary(NBA_PLAYER_STATS_1617)\
+\
+NBA_PAYROLL<- read.csv("NBA.PAYROLL.1617.csv",stringsAsFactors = FALSE)\
+summary(NBA_PAYROLL)\
+\
+NBA_PLAYER_PAY_STATS<- merge(NBA_PLAYER_STATS_1617,NBA_PAYROLL,by.x="Player",by.y="Player")\
+\
+\
+#Create variable neames for ease of reference/plotting\
+PLAYER<- NBA_PLAYER_PAY_STATS$Player\
+Pos<- NBA_PLAYER_PAY_STATS$Pos\
+AGE<- NBA_PLAYER_PAY_STATS$Age\
+TEAM<- NBA_PLAYER_PAY_STATS$Tm\
+GAMES<- NBA_PLAYER_PAY_STATS$G\
+GS<- NBA_PLAYER_PAY_STATS$GS\
+MP<- NBA_PLAYER_PAY_STATS$MP\
+e.FG<- NBA_PLAYER_PAY_STATS$e.FG\
+PTS<- NBA_PLAYER_PAY_STATS$PTS\
+PER<- NBA_PLAYER_PAY_STATS$PER\
+TS<- NBA_PLAYER_PAY_STATS$TS\
+x3PAr<- NBA_PLAYER_PAY_STATS$X3PAr\
+FTR <- NBA_PLAYER_PAY_STATS$FTR\
+OREB<- NBA_PLAYER_PAY_STATS$OREB\
+DREB<- NBA_PLAYER_PAY_STATS$DREB\
+AST.PCT<- NBA_PLAYER_PAY_STATS$AST.PCT\
+TOV.PCT<- NBA_PLAYER_PAY_STATS$TOV.PCT\
+USG<- NBA_PLAYER_PAY_STATS$USG\
+OWS<- NBA_PLAYER_PAY_STATS$OWS\
+DWS<- NBA_PLAYER_PAY_STATS$DWS\
+WS<- NBA_PLAYER_PAY_STATS$WS\
+WS.48<- NBA_PLAYER_PAY_STATS$WS.48\
+OBPM<- NBA_PLAYER_PAY_STATS$OBPM\
+DBPM<- NBA_PLAYER_PAY_STATS$DBPM\
+BPM<-NBA_PLAYER_PAY_STATS$BPM\
+VORP<- NBA_PLAYER_PAY_STATS$VORP\
+FG<- NBA_PLAYER_PAY_STATS$FG\
+FGA<- NBA_PLAYER_PAY_STATS$FGA\
+O.RTG<- NBA_PLAYER_PAY_STATS$ORtg\
+D.RTG<- NBA_PLAYER_PAY_STATS$DRtg\
+DFGM<- NBA_PLAYER_PAY_STATS$DFGM\
+DFGA<- NBA_PLAYER_PAY_STATS$DFGA\
+DFG.PCT<- NBA_PLAYER_PAY_STATS$DFG.PCT\
+DIFF.PCT<- NBA_PLAYER_PAY_STATS$Diff.PCT\
+PAY_RANK<- NBA_PLAYER_PAY_STATS$Rank\
+PAID_BY<- NBA_PLAYER_PAY_STATS$Team\
+PAY_1617<- NBA_PLAYER_PAY_STATS$Salary2016_17\
+PAY_1718<- NBA_PLAYER_PAY_STATS$Salary2017_18\
+PAY_1819<- NBA_PLAYER_PAY_STATS$Salary2018_19\
+PAY_1920<- NBA_PLAYER_PAY_STATS$Salary2019_20\
+PAY_2021<- NBA_PLAYER_PAY_STATS$Salary2020_21\
+PAY_2122<- NBA_PLAYER_PAY_STATS$Salary2021.22\
+SIGNED<- NBA_PLAYER_PAY_STATS$Signed.Using\
+GAURANTEED<- NBA_PLAYER_PAY_STATS$Guaranteed\
+MPG<- MP/GAMES\
+PIP<- WS/MPG\
+\
+NBA_PLAYER_PAY_STATS<- data.frame(cbind(NBA_PLAYER_PAY_STATS,MPG,PIP))\
+######################################################################################\
+#create Detroit specific data set\
+DETROIT_1617<- cbind(subset(NBA_PLAYER_PAY_STATS,Team=="DET"))\
+summary(DETROIT_1617)\
+\
+DET_PLAY<- subset(DETROIT_1617,Salary2016_17>2.5) \
+\
+\
+\
+PG_PAY<-subset(PAY_1617,Pos=="PG")\
+SG_PAY<-subset(PAY_1617,Pos=="SG")\
+SF_PAY<-subset(PAY_1617,Pos=="SF")\
+PF_PAY<-subset(PAY_1617,Pos=="PF")\
+C_PAY<-subset(PAY_1617,Pos=="C")\
+\
+DET_PG_PAY<- subset(PAY_1617,TEAM=="DET" & Pos=="PG")\
+DET_SG_PAY<- subset(PAY_1617,TEAM=="DET" & Pos=="SG")\
+DET_SF_PAY<- subset(PAY_1617,TEAM=="DET" & Pos=="SF")\
+DET_PF_PAY<- subset(PAY_1617,TEAM=="DET" & Pos=="PF")\
+DET_C_PAY<- subset(PAY_1617,TEAM=="DET" & Pos=="C")\
+\
+\
+\
+```\
+\
+#Executive Summary\
+\
+The purpose of this assignment is to develop a single metric to assess an individual player\'92s performance contribution to team output in relation to their salary earned in the current season. This study will explore the 2016-17 Detroit Pistons through the first 46 games of the regular season, and will offer value to front office executives in providing a single measure that will enable the team's coaching staff and player personnel managers to better identify the value of each player\'92s on-court output in relation to the money earned across each spot on the roster. Although there are currently a number of advanced statistics that measure player performance as a measure of team success, this study attempts to further explore this topic with the objective of providing additional context to more accurately assess player value.\
+\
+In order to develop this metric this research will utilize Win Shares, an advanced statistic that estimates the number of wins contributed to the team by each player. Win Share is computed by calculating the marginal points scored and marginal defensive points allowed while each player is on the court. Additionally, we will leverage each player's minutes per game statistics. Together, these stats will combine to provide a single metric that enables front office management the ability to evaluate whether or not their current dollars are being spent efficiently, as well as in identifying under-valued assets who over-perform their worth who currently have contracts with outside of their specific organization. This newly developed metric, is visualized below and provides context to each player's Win-Share rate in relation to their Minutes Player per Game which provides a new method of assessing a Players' Performance Impact Value.  \
+\
+#Results  \
+\
+In reviewing the results below, the primary player that stands out is Jon Leuer, who appears to contributing the highest impact value to the team.  This is surprising first, because he is a role player who currently comes off of the bench to serve as the back-up Power-Forward. Secondly, Leuer is currently the fourth highest player on Detroit's payroll, and is currently producing at a level higher than the player he's replacing, Tobias Harris, who occupies the starting Power-Forward and the 2nd highest payroll on the current roster. \
+\
+\
+```\{r NBA_PLAYER_PAY_STATS\}\
+\
+A<- ggplot(data=DET_PLAY,aes(Player,PIP)) +\
+  geom_point(colour="blue",size=4) +\
+  ggtitle("Figure 1: Detroit Player Performance Impact Value")+\
+  theme(plot.title=element_text(hjust=0.5,size=15))\
+A + theme(axis.text.x=element_text(angle=90,hjust=1,size=7.5),axis.title.x=element_blank())\
+\
+```\
+ \
+\
+Additionally, this visual makes it evident that the team is currenlty under-performing at the Point-Guard position. This might be expected, due to the time missed to injury by Reggie Jackson at the beginning of this season. However, since re-joiing the team and serving quality 'starter-like' minutes since his return, it's clear that Reggie Jackson is not giving the team the value we'd hope for at the number one Point-Guard position.  This is true for two reasons: First, this metric yields equal comparision to Win-Share contribution as it is adjusted for minutes played per game by each player, and we can see that Ish Smith is currently contributing at a higher rate that Jackson. Secondly, if we take Reggie Jackson's salary into account, he is our third highest player on the payroll, yet contributing at a rate that is less valuable than any of our top ten players in terms of salary earning for the current year. This analysis can be further validated in reviewing the results given in Appendix A and Appendix B, which also factor in USG per Salary Earnings Ratings.\
+\
+\
+#Strategic Recommendation\
+\
+With NBA Trade Deadline rapidly approaching on February 23rd, there will be a number of potential offers on the table that will require critical decisions to be made, and each of these decisions will each require an honest evaluation of the involved trade-offs. Having said that, it is appearant that the Detroit Pistons are currently over-paying at the Point-Guard position, and have one player in particular, who is currenlty earning far-above the value he is contributing to the team.   \
+\
+Due to the fact that Reggie Jackson's replacement isn't quite fulfilling the value on his own, the recommendation in trading Jackson should only be considered if there is additional value to gain in his potential replacement. With that said, the overall recommendation for the current season is to stay the course, and delay an decisions until the season commences. At which time, the franchise can weigh the value of potential draft candidates at the point guard posisiton, while also considering value provided to other organizations with the assets who currenlty show promise at positions beyond the Point-Guard role.\
+\
+\
+\\newpage\
+\
+```\{r\}\
+\
+G<- ggplot(data=NBA_PLAYER_PAY_STATS) +\
+  geom_boxplot(mapping=aes(x=Pos,y=PIP,colour=Pos))+\
+  ggtitle("Figure 2: NBA Player Performance Impact Value by Position")+\
+   theme(plot.title=element_text(hjust=0.5,size=15))\
+G\
+\
+```\
+\
+\\newpage\
+\
+#Appendix A  \
+\
+###Table 1-A:  Detroit Player Impact Performance Value  \
+\
+  PIP Rank  |  Player     | PIP Rating     |  16-17 Salary\
+|:----------|-----------:|:--------------:|:---------------:|\
+| 1  | Jon Leuer | 0.12347 | 10.9 |  \
+| 2  | Andre Drummond | 0.12135 | 22.12   \
+| 3  | Tobias Harris | 0.11553 | 17.2 | \
+| 4  | KCP | 0.09514 | 3.6 | \
+| 5  | Aron Baynes | 0.08537  | 6.5  | \
+| 6  | Boban Marjanovic | 0.08219 | 7.0 |  \
+| 7  | Marcus Morris | 0.06437 | 4.6 | \
+| 8  | Stanley Johnson  | 0.0489 | 2.9 | \
+| 9  | Ish Smith| 0.04562 | 6.0 | \
+| 10  | Reggie Jackson | 0.03751 |  14.9 |  \
+\
+\
+The results of Detroit's Player Performance Impact Value to the team are illustrated above in Figure 1, which shows the top ten roster spots in terms of the 2016-17 Salary earned.\
+\
+\
+```\{r echo=FALSE\}\
+\
+boxplot(PAY_1617~Pos,main="Figure 1-A: Earnings by Position: Entire NBA",ylab="2016-17 Salary ($ per Million)",cex.main=1)\
+\
+```\
+\
+In reviewing the results from the Figure above, we can compare those results with the makeup of the current Pistons roster below in Figure 2-A.\
+\
+```\{r\}\
+boxplot(DETROIT_1617$Salary2016_17~DETROIT_1617$Pos,main="Figure 2-A: Earnings by Position: Detroit Pistons",ylab="2016-17 Salary ($ per Million)",cex.main=1)\
+```\
+\
+\
+###Table 2-A:  Win-Share by Position  \
+\
+Win-Share by Position | Point Guard | Shooting Guard | Small Forward | Power Forward | Center |\
+|:-----------:|:----------:|:----------:|:----------:|:----------:|:----------:|\
+| NBA Average  | 3.2| 3.4 | 2.9 | 3.2 | 2.8 |\
+| Detroit Starting Five  | 1.1 | 3.2 | 2.1  | 3.8 | 3.7 |\
+\
+Table 2-A, indicates that the Piston\'92s roster is less effective in Win-Share contributions at the point guard, shooting guard, and small forward positions, while also highlighting a greater effectiveness of Win-Share contributions at the power forward and center positions.  \
+\
+\
+\\newpage\
+\
+**Table 3-A: Pearson's Product-Moment Correlation to Win-Share**    \
+\
+Correlation Rank | Predictor Value | Correlation to Overall Win-Share | T-Statistic | p-Value |\
+|:-----------:|:----------:|:----------:|:----------:|:----------:|\
+| 1  | Offensive Win-Share | 0.9556075 | 68.877   | < 2.2e-16 |\
+| 2  | Points Scored | 0.8474175 | 33.896  | < 2.2e-16 |\
+| 3  | Defensive Win-Share | 0.8146919 | 29.835   | < 2.2e-16 |\
+| 4  | Minutes Played | 0.7713036 | 25.736   | < 2.2e-16 |\
+| 5  | Box Plus-Minus | 0.6698258  | 19.411  | < 2.2e-16 |\
+| 6  | Player Efficiency Rating| 0.6649388 | 19.156  | < 2.2e-16 |\
+| 7  | Player Salary | 0.6148886 | 16.777   | < 2.2e-16|\
+| 8  | Games Played | 0.5689389 | 14.692   | < 2.2e-16|\
+| 9  | Player Usage Rating | 0.4448690 | 10.549  | < 2.2e-16 |\
+| 10  | Effective FG Rate | 0.2987801 |  6.7294  | 5.058e-11 |\
+\
+```\{r, echo=FALSE\}\
+B<- ggplot(data=DET_PLAY,aes(Player,USG)) +\
+      geom_point(colour="blue",size=4) +\
+      ggtitle("Figure 3-A: Detroit Player Usage Rating \\n Through 46 Games 2016-17")+\
+      theme(plot.title=element_text(hjust=0.5,size=10))\
+B + theme(axis.text.x=element_text(angle=90,hjust=1,size=7.5),axis.title.x=element_blank())\
+\
+H<- ggplot(data=DET_PLAY,aes(Player,WS)) +\
+  geom_point(colour="blue",size=4) +\
+  ggtitle("Figure 4-A: Detroit Player Win-Shares \\n Through 46 Games 2016-17")+\
+  theme(plot.title=element_text(hjust=0.5,size=10)) \
+H + theme(axis.text.x=element_text(angle=90,hjust=1,size=7.5),axis.title.x=element_blank())\
+\
+\
+E<- ggplot(data=DET_PLAY,aes(Player,WS.48)) +\
+  geom_point(colour="blue",size=4) +\
+  ggtitle("Figure 5-A: Detroit Player Win-Share per 48 Mins \\n Through 46 Games 2016-17")+\
+  theme(plot.title=element_text(hjust=0.5,size=10)) \
+E + theme(axis.text.x=element_text(angle=90,hjust=1,size=7.5),axis.title.x=element_blank())\
+  \
+\
+C<- ggplot(data=DET_PLAY,aes(Player,MP)) +\
+  geom_point(colour="blue",size=4) +\
+  ggtitle("Figure 6-A: Detroit Player Cumulative Minutes Played \\n Through 46 Games 2016-17")+\
+  theme(plot.title=element_text(hjust=0.5,size=10))\
+C + theme(axis.text.x=element_text(angle=90,hjust=1,size=7.5),axis.title.x=element_blank())\
+  \
+\
+D<- ggplot(data=DET_PLAY,aes(Player,MPG)) +\
+  geom_point(colour="blue",size=4) +\
+  ggtitle("Figure 7-A: Detroit Player Minutes per Game \\n Through 46 Games 2016-17")+\
+  theme(plot.title=element_text(hjust=0.5,size=10))\
+D + theme(axis.text.x=element_text(angle=90,hjust=1,size=7.5),axis.title.x=element_blank())\
+```\
+\
+\
+\
+}
